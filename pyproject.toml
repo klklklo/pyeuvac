@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyeuvac"
+version = "0.0.2b"
+authors = [
+  { name="Anton Tatarnikov", email="tatarnikoffanton@yandex.ru" },
+  { name="Oleg Zolotov", email="ovz.office@gmail.com" },
+]
+description = "Python implementation of EUVAC model of the ultraviolet radiation spectrum of the Sun"
+
+readme = "README.md"
+license = {file = "LICENSE"}
+
+keywords = ["Solar radiation model", "EUV"]
+
+
+requires-python = ">=3.7"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: Apache Software License",
+    "Topic :: Scientific/Engineering :: Physics"
+]
+dependencies=[
+    "importlib-resources",
+    "netcdf4",
+    "numpy",
+    "pandas",
+    "xarray"
+]
+
+[project.urls]
+Homepage = "https://github.com/klklklo/pyeuvac"
+
+[tool.setuptools]
+include-package-data=true
+
+[tool.setuptools.package-data]
+"pyeuvac._coeffs" = [ "*.nc"]
