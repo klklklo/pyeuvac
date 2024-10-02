@@ -36,8 +36,10 @@ dependencies=[
     "numpy",
     "pandas",
     "xarray"
-
 ]
+
+[project.urls]
+Homepage = "https://github.com/klklklo/pyeuvac"
 
 [tool.setuptools]
 include-package-data=true
