@@ -1,8 +1,8 @@
 # pyeuvac
 <!--Basic information-->
-pyeuvac is a Python3 implementation of models of the ultraviolet radiation spectra of the Sun described by P. G. Richards, 
-J. A. Fennelly, D. G. Torr. The EUV model describes variations in the 5–105 nm spectral region.
-
+pyeuvac is a Python3 implementation of models of the extra ultraviolet (EUV) flux of the Sun described by P. G. Richards, 
+J. A. Fennelly, D. G. Torr. This EUV model provides fluxes in the range 5-105 nm, divided into 20 intervals 
+of 5 nm width and into 17 separate lines.
 
 If you use pyeuvac or EUVAC model directly or indirectly, please, cite in your research the following paper:
 
@@ -22,6 +22,17 @@ python -m pip install pyeuvac
 ```
 
 pyeuvac is the name of the package.
+
+
+## Usage example
+
+Пакет pyeuvac имеет 3 метода: get_spectra_lines() для расчёта спектра по отдельным линиям, get_spectra_bands() для расчёта
+спектра по интервалам, и get_spectra(), сочетающий оба метода.
+
+1. get_spectra_lines()
+```commandline
+
+```
 
 
 
