@@ -43,7 +43,6 @@ class EUVAC:
         :return: xarray Dataset [euv_flux_spectra, lband, uband, center]
         '''
         x = self._get_P(P)
-        print(x)
         res = np.dot(self._bands_coeffs, x.T)
         return xr.Dataset(data_vars={'euv_flux_spectra': (('band_center', 'P'), res),
                                      'lband': ('band_number', self._bands_dataset['lband'].values),
