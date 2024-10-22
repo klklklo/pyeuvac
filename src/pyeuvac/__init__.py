@@ -1,1 +1,1 @@
-from pyeuvac._euvac import EUVAC
+from pyeuvac._euvac import Euvac

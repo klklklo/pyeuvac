@@ -26,17 +26,17 @@ pyeuvac is the name of the package.
 
 ## Usage example
 
-The pyeuvac package has 3 methods: get_spectra_lines() for calculating the spectrum along individual lines, 
-get_spectra_bands() for calculating the spectrum over intervals, and get_spectra(), combining both methods.
+The pyeuvac package has 3 methods: get_spectral_lines() for calculating the spectrum along individual lines, 
+get_spectral_bands() for calculating the spectrum over intervals, and get_spectra(), combining both methods.
 
-1. get_spectra_lines()
+1. get_spectral_lines()
 ```
 # importing a package with the alias p
 import pyeuvac as pe
 # creating an instance of the EUVAC class
 ex = pe.EUVAC()
 # calculate the spectrum values at F10.7 = 200 and F10.7A = 200 (P = 200 as an example of the Richards et al.) using get_spectral_lines()
-spectra = ex.get_spectra_lines((200,200))
+spectra = ex.get_spectral_lines((200,200))
 # output the resulting EUV-spectra
 print(spectra['euv_flux_spectra'])
 
@@ -55,7 +55,7 @@ Coordinates:
 If you need to calculate the spectrum for several P values, pass them using a list:
 ```
 # calculate the spectrum values at F10.7 = 200 and F10.7A = 200, F10.7 = 190 and F10.7A = 210, F10.7 = 200 and F10.7A = 220
-spectra = ex.get_spectra_lines([(200,200), (190,210), (200,220)])
+spectra = ex.get_spectral_lines([(200,200), (190,210), (200,220)])
 # output the resulting EUV-spectra
 print(spectra['euv_flux_spectra'])
 
@@ -72,14 +72,14 @@ Coordinates:
 
 ```
 
-2. get_spectra_bands()
+2. get_spectral_bands()
 ```
 # importing a package with the alias p
 import pyeuvac as pe
 # creating an instance of the Euvt2021 class
 ex = pe.EUVAC()
-# calculate the spectrum values at F10.7 = 200 and F10.7A = 200 (P = 200 as an example of the Richards et al.) using get_spectra_bands()
-spectra = ex.get_spectra_bands((200,200))
+# calculate the spectrum values at F10.7 = 200 and F10.7A = 200 (P = 200 as an example of the Richards et al.) using get_spectral_bands()
+spectra = ex.get_spectral_bands((200,200))
 # output the resulting EUV-spectra
 print(spectra['euv_flux_spectra'])
 
@@ -98,7 +98,7 @@ Coordinates:
 If you need to calculate the spectrum for several P values, pass them using a list:
 ```
 # calculate the spectrum values at F10.7 = 200 and F10.7A = 200, F10.7 = 190 and F10.7A = 210, F10.7 = 200 and F10.7A = 220
-spectra = ex.get_spectra_bands([(200,200), (190,210), (200,220)])
+spectra = ex.get_spectral_bands([(200,200), (190,210), (200,220)])
 # output the resulting EUV-spectra
 print(spectra['euv_flux_spectra'])
 
@@ -116,7 +116,7 @@ Coordinates:
 
 3. get_spectra()
 
-This method combines the get_spectra_bands() and get_spectra_lines() methods. The method returns a tuple of 
+This method combines the get_spectral_bands() and get_spectral_lines() methods. The method returns a tuple of 
 xarray Dataset (lines, bands), the first element is the flux in intervals, the second is the flux in individual lines.
 
 ```
