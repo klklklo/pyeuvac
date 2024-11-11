@@ -1,6 +1,6 @@
 # pyeuvac
 <!--Basic information-->
-pyeuvac is a Python3 implementation of models of the extra ultraviolet (EUV) flux of the Sun described by P. G. Richards, 
+pyeuvac is a Python3 implementation of the extra ultraviolet (EUV) flux model described by P. G. Richards, 
 J. A. Fennelly, D. G. Torr. This EUV model provides fluxes in the range 5-105 nm, divided into 20 intervals 
 of 5 nm width and into 17 separate lines.
 
@@ -23,34 +23,46 @@ python -m pip install pyeuvac
 
 pyeuvac is the name of the package.
 
-
 ## Usage example
 
-The pyeuvac package has 3 methods: get_spectral_lines() for calculating the spectrum along individual lines, 
-get_spectral_bands() for calculating the spectrum over intervals, and get_spectra(), combining both methods.
+The pyeuvac package contains one class Euvac which has 3 methods: get_spectral_bands() for calculating the spectrum 
+over intervals, get_spectral_lines() for calculating the spectrum along individual lines, 
+and get_spectra(), combining both methods.
 
-1. get_spectral_lines()
+2. get_spectral_lines()
+
+This method calculates the EUV flux in the range of 5-105 nm, divided into 20 intervals with a width of 5 nm each. 
+
+Input parameters:
+- f107 - single value of the daily index F10.7 (in s.f.u.);
+- f107avg - 81-day average F10.7 value (in s.f.u.).
+
+f107 and f107avg can be represented by lists for calculating spectra for several values of f107 and f107avg.
+In this case, the lengths of these lists should be the same.
+
+Output parameters:
+- xarray dataset
 ```
-# importing a package with the alias p
-import pyeuvac as pe
-# creating an instance of the EUVAC class
-ex = pe.EUVAC()
-# calculate the spectrum values at F10.7 = 200 and F10.7A = 200 (P = 200 as an example of the Richards et al.) using get_spectral_lines()
-spectra = ex.get_spectral_lines((200,200))
-# output the resulting EUV-spectra
-print(spectra['euv_flux_spectra'])
-
-
-<xarray.DataArray 'euv_flux_spectra' (lambda: 17, P: 1)> Size: 136B
-array([[0.61318   ],
-       [3.679536  ],
-       ...
-       [5.676986  ],
-       [3.4313916 ]])
+<xarray.Dataset> Size: 492B
+Dimensions:           (lambda: 17, ('F10.7', 'F10.7_avg'): 1, line_number: 17,
+                       F10.7: 1, F10.7_avg: 1)
 Coordinates:
-  * lambda   (lambda) float64 136B 25.63 28.41 30.33 30.38 ... 97.7 102.6 103.2
-  * P        (P) float64 8B 200.0
+  * lambda            (lambda) float64 136B 25.63 28.41 30.33 ... 102.6 103.2
+  * line_number       (line_number) int32 68B 0 1 2 3 4 5 ... 11 12 13 14 15 16
+  * F10.7             (F10.7) float64 8B <F10.7 values>
+  * F10.7_avg         (F10.7_avg) float64 8B <F10.7 81-day average values>
+Dimensions without coordinates: ('F10.7', 'F10.7_avg')
+Data variables:
+    euv_flux_spectra  (lambda, ('F10.7', 'F10.7_avg')) float64 136B <EUV flux spectra values>
+    line_lambda       (line_number) float64 136B 25.63 28.41 ... 102.6 103.2
 ```
+
+Below is an example of spectrum calculation using get_spectra_lines() method
+
+```
+
+```
+
 
 If you need to calculate the spectrum for several P values, pass them using a list:
 ```
