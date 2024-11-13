@@ -30,17 +30,18 @@ class Euvac:
         :return: numpy-array for model calculation.
         '''
 
-        if f107.size != f107avg.size:
-            raise Exception(f'The number of F10.7 and F10.7_avg values does not match. f107 contained {f107.size} '
-                            f'elements, f107avg contained {f107avg.size} elements.')
+        if isinstance(f107, (float, int)):
+            return np.array([1., (f107 + f107avg) / 2. - 80.]).reshape(1, 2)
+        else:
+            f107 = np.array(f107)
+            f107avg = np.array(f107avg)
 
-        if f107.ndim == 0:
-            return np.array([1., (f107 + f107avg) / 2. - 80.])
-
-        return np.vstack([[1., x] for x in (f107 + f107avg) / 2. - 80.])
+            if f107.size != f107avg.size:
+                raise Exception(f'The number of F10.7 and F10.7_avg values does not match. f107 contained {f107.size} '
+                                f'elements, f107avg contained {f107avg.size} elements.')
+            return np.vstack([[1., x] for x in (f107 + f107avg) / 2. - 80.])
 
     def _check_types(self, f107, f107avg):
-
         if not isinstance(f107, (float, int, list, np.ndarray) or not isinstance(f107avg, (float, int, list, np.ndarray))):
             raise TypeError(f'Only float, int, list and np.ndarray. f107 was {type(f107)}, f107avg was {type(f107avg)}')
 
@@ -59,22 +60,23 @@ class Euvac:
         '''
 
         if self._check_types(f107, f107avg):
-            f107 = np.array(f107)
-            f107avg = np.array(f107avg)
+
             p = self._get_p(f107, f107avg)
             spectra = np.dot(self._bands_coeffs, p.T)
 
-            res = np.zeros((f107.size, f107avg.size, spectra.shape[0]))
-            for i in range(f107.size):
+            res = np.zeros((spectra.shape[1], spectra.shape[1], spectra.shape[0]))
+            for i in range(spectra.shape[1]):
                 res[i, i, :] = spectra[:, i]
 
+
             return xr.Dataset(data_vars={'euv_flux_spectra': (('F10.7', 'F10.7AVG', 'band_center'), res),
-                                         'lband': ('band_number', self._bands_dataset['lband'].values),
-                                         'uband': ('band_number', self._bands_dataset['uband'].values),
-                                         'center': ('band_number', self._bands_dataset['center'].values)},
+                                         # 'lband': ('band_number', self._bands_dataset['lband'].values),
+                                         # 'uband': ('band_number', self._bands_dataset['uband'].values),
+                                         # 'center': ('band_number', self._bands_dataset['center'].values)
+                                         },
                               coords={'band_center': self._bands_dataset['center'].values,
-                                      'F10.7': f107,
-                                      'F10.7AVG': f107avg,
+                                      'F10.7': np.array(f107).reshape(1,),
+                                      'F10.7AVG':  np.array(f107avg).reshape(1,),
                                       'band_number': np.arange(20)})
 
     def get_spectral_lines(self, *, f107, f107avg):
