@@ -4,9 +4,9 @@ pyeuvac is a Python3 implementation of the extra ultraviolet (EUV) flux model de
 J. A. Fennelly, D. G. Torr. This EUV model provides fluxes in the range 5-105 nm, divided into 20 intervals 
 of 5 nm width and into 17 separate lines.
 
-If you use pyeuvac or EUVAC model directly or indirectly, please, cite in your research the following paper:
+If you use pyeuvac or Euvac model directly or indirectly, please, cite in your research the following paper:
 
-1. Richards, P. G., J. A. Fennelly, and D. G. Torr (1994), EUVAC: A solar EUV Flux Model for aeronomic calculations, 
+1. Richards, P. G., J. A. Fennelly, and D. G. Torr (1994), Euvac: A solar EUV Flux Model for aeronomic calculations, 
 J. Geophys. Res., 99(A5), 8981-8992. https://doi.org/10.1029/94JA00518
 
 # User's guide
@@ -26,8 +26,49 @@ pyeuvac is the name of the package.
 ## Usage example
 
 The pyeuvac package contains one class Euvac which has 3 methods: get_spectral_bands() for calculating the spectrum 
-over intervals, get_spectral_lines() for calculating the spectrum along individual lines, 
-and get_spectra(), combining both methods.
+over intervals, get_spectral_lines() for calculating the spectrum along individual lines, and get_spectra() combining both methods.
+
+1. get_spectral_bands()
+```
+# importing a package with the alias p
+import pyeuvac as pe
+# creating an instance of the Euvt2021 class
+ex = pe.Euvac()
+# calculate the spectrum values at F10.7 = 200 and F10.7A = 200 (P = 200 as an example of the Richards et al.) using get_spectral_bands()
+spectra = ex.get_spectral_bands((200,200))
+# output the resulting EUV-spectra
+print(spectra['euv_flux_spectra'])
+
+
+<xarray.DataArray 'euv_flux_spectra' (band_center: 20, P: 1)> Size: 160B
+array([[ 2.642448  ],
+       [ 0.83475   ],
+       ...
+       [ 2.2567559 ],
+       [ 3.762175  ]])
+Coordinates:
+  * band_center  (band_center) float64 160B 7.5 12.5 17.5 ... 92.5 97.5 102.5
+  * P            (P) float64 8B 200.0
+```
+
+If you need to calculate the spectrum for several P values, pass them using a list:
+```
+# calculate the spectrum values at F10.7 = 200 and F10.7A = 200, F10.7 = 190 and F10.7A = 210, F10.7 = 200 and F10.7A = 220
+spectra = ex.get_spectral_bands([(200,200), (190,210), (200,220)])
+# output the resulting EUV-spectra
+print(spectra['euv_flux_spectra'])
+
+
+<xarray.DataArray 'euv_flux_spectra' (band_center: 20, P: 3)> Size: 480B
+array([[ 2.642448  ,  2.642448  ,  2.762652  ],
+       [ 0.83475   ,  0.83475   ,  0.8668125 ],
+       ...            ...          ...
+       [ 2.2567559 ,  2.2567559 ,  2.32190223],
+       [ 3.762175  ,  3.762175  ,  3.87010625]])
+Coordinates:
+  * band_center  (band_center) float64 160B 7.5 12.5 17.5 ... 92.5 97.5 102.5
+  * P            (P) float64 24B 200.0 200.0 210.0
+```
 
 2. get_spectral_lines()
 
@@ -84,48 +125,6 @@ Coordinates:
 
 ```
 
-2. get_spectral_bands()
-```
-# importing a package with the alias p
-import pyeuvac as pe
-# creating an instance of the Euvt2021 class
-ex = pe.EUVAC()
-# calculate the spectrum values at F10.7 = 200 and F10.7A = 200 (P = 200 as an example of the Richards et al.) using get_spectral_bands()
-spectra = ex.get_spectral_bands((200,200))
-# output the resulting EUV-spectra
-print(spectra['euv_flux_spectra'])
-
-
-<xarray.DataArray 'euv_flux_spectra' (band_center: 20, P: 1)> Size: 160B
-array([[ 2.642448  ],
-       [ 0.83475   ],
-       ...
-       [ 2.2567559 ],
-       [ 3.762175  ]])
-Coordinates:
-  * band_center  (band_center) float64 160B 7.5 12.5 17.5 ... 92.5 97.5 102.5
-  * P            (P) float64 8B 200.0
-```
-
-If you need to calculate the spectrum for several P values, pass them using a list:
-```
-# calculate the spectrum values at F10.7 = 200 and F10.7A = 200, F10.7 = 190 and F10.7A = 210, F10.7 = 200 and F10.7A = 220
-spectra = ex.get_spectral_bands([(200,200), (190,210), (200,220)])
-# output the resulting EUV-spectra
-print(spectra['euv_flux_spectra'])
-
-
-<xarray.DataArray 'euv_flux_spectra' (band_center: 20, P: 3)> Size: 480B
-array([[ 2.642448  ,  2.642448  ,  2.762652  ],
-       [ 0.83475   ,  0.83475   ,  0.8668125 ],
-       ...            ...          ...
-       [ 2.2567559 ,  2.2567559 ,  2.32190223],
-       [ 3.762175  ,  3.762175  ,  3.87010625]])
-Coordinates:
-  * band_center  (band_center) float64 160B 7.5 12.5 17.5 ... 92.5 97.5 102.5
-  * P            (P) float64 24B 200.0 200.0 210.0
-```
-
 3. get_spectra()
 
 This method combines the get_spectral_bands() and get_spectral_lines() methods. The method returns a tuple of 
@@ -135,7 +134,7 @@ xarray Dataset (lines, bands), the first element is the flux in intervals, the s
 # importing a package with the alias p
 import pyeuvac as pe
 # creating an instance of the Euvt2021 class
-ex = pe.EUVAC()
+ex = pe.Euvac()
 # calculate the spectrum values at F10.7 = 200 and F10.7A = 200 (P = 200 as an example of the Richards et al.) using get_spectra()
 spectra = ex.get_spectra((200,200))
 # output the resulting EUV-spectra

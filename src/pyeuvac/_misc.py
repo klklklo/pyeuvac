@@ -4,8 +4,8 @@ from importlib_resources import files
 
 
 @functools.cache
-def read_coeffs(file):
+def _read_coeffs(file):
     return xr.open_dataset(files('pyeuvac._coeffs').joinpath(file))
 
 def get_euvac():
-    return read_coeffs('euvac_model_bands.nc').copy(), read_coeffs('euvac_model_lines.nc').copy(),
+    return _read_coeffs('euvac_bands_coeffs.nc').copy(), _read_coeffs('euvac_lines_coeffs.nc').copy(),

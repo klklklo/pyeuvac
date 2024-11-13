@@ -5,7 +5,7 @@ import pyeuvac._misc as _m
 
 class Euvac:
     '''
-    Euvac model class. Wavelength range 5-105 nm
+    EUVAC model class.
     '''
     def __init__(self):
         # The equation of the model Fi = F74113 * (1 + Ai * (P - 80)) <=> Fi = F74113 + F74113 * Ai * (P - 80)
@@ -24,68 +24,91 @@ class Euvac:
     def _get_p(self, f107, f107avg):
         '''
         Method for preparing data. It creates a two-dimensional array, the first column of which is filled with ones,
-        the second with the values of P = (F10.7 + F10.7avg) / 2
-        :param f107: single value of the daily index F10.7 or an array of such values
-        :param f107avg: a single value of the F10.7 index averaged over 81 days or an array of such values
-        :return: numpy-array for model calculation
+        the second with the values of P = (F10.7 + F10.7avg) / 2.
+        :param f107: single value of the daily index F10.7 or an array of such values.
+        :param f107avg: a single value of the F10.7 index averaged over 81 days or an array of such values.
+        :return: numpy-array for model calculation.
         '''
 
-        if isinstance(f107, (float, int)) and isinstance(f107avg, (float, int)):
+        if f107.size != f107avg.size:
+            raise Exception(f'The number of F10.7 and F10.7_avg values does not match. f107 contained {f107.size} '
+                            f'elements, f107avg contained {f107avg.size} elements.')
+
+        if f107.ndim == 0:
             return np.array([1., (f107 + f107avg) / 2. - 80.])
 
-        if isinstance(f107, (float, int)) and not isinstance(f107avg, (float, int)) \
-                or not isinstance(f107, (float, int)) and isinstance(f107avg, (float, int)):
-            raise TypeError(f'F10.7 and F10.7 must be same type. f107 was {type(f107)}, f107avg was {type(f107avg)}')
-        f107 = np.array(f107)
-        f107avg = np.array(f107avg)
-        if len(f107) != len(f107avg):
-            raise Exception(f'The number of F10.7 and F10.7_avg values does not match. f107 contained {len(f107)} '
-                            f'elements, f107avg contained {len(f107avg)} elements ')
         return np.vstack([[1., x] for x in (f107 + f107avg) / 2. - 80.])
 
-    def get_spectral_bands(self, f107, f107avg):
+    def _check_types(self, f107, f107avg):
+
+        if not isinstance(f107, (float, int, list, np.ndarray) or not isinstance(f107avg, (float, int, list, np.ndarray))):
+            raise TypeError(f'Only float, int, list and np.ndarray. f107 was {type(f107)}, f107avg was {type(f107avg)}')
+
+        if type(f107) != type(f107avg):
+            raise TypeError(f'f107 and f107avg types must be equal. f107 was {type(f107).__name__}, '
+                            f'f107avg was {type(f107avg).__name__}')
+        return True
+
+    def get_spectral_bands(self, *, f107, f107avg):
         '''
         Model calculation method. Returns the values of radiation fluxes in all 20 intervals
-        of the spectrum of the interval 10-105 nm
-        :param f107: single value of the daily index F10.7 or an array of such values
-        :param f107avg: a single value of the F10.7 index averaged over 81 days or an array of such values
-        :return: xarray Dataset [euv_flux_spectra, lband, uband, center]
+        of the spectrum of the interval 10-105 nm.
+        :param f107: single value of the daily index F10.7 or an array of such values.
+        :param f107avg: a single value of the F10.7 index averaged over 81 days or an array of such values.
+        :return: xarray Dataset [euv_flux_spectra, lband, uband, center].
         '''
 
-        p = self._get_p(f107, f107avg)
-        res = np.dot(self._bands_coeffs, p.T)
-        return xr.Dataset(data_vars={'euv_flux_spectra': (('band_center', ('F10.7', 'F10.7_avg')), res),
-                                     'lband': ('band_number', self._bands_dataset['lband'].values),
-                                     'uband': ('band_number', self._bands_dataset['uband'].values),
-                                     'center': ('band_number', self._bands_dataset['center'].values)},
-                          coords={'band_center': self._bands_dataset['center'].values,
-                                  'F10.7': f107,
-                                  'F10.7_avg': f107avg,
-                                  'band_number': np.arange(20)})
+        if self._check_types(f107, f107avg):
+            f107 = np.array(f107)
+            f107avg = np.array(f107avg)
+            p = self._get_p(f107, f107avg)
+            spectra = np.dot(self._bands_coeffs, p.T)
 
-    def get_spectral_lines(self, f107, f107avg):
+            res = np.zeros((f107.size, f107avg.size, spectra.shape[0]))
+            for i in range(f107.size):
+                res[i, i, :] = spectra[:, i]
+
+            return xr.Dataset(data_vars={'euv_flux_spectra': (('F10.7', 'F10.7AVG', 'band_center'), res),
+                                         'lband': ('band_number', self._bands_dataset['lband'].values),
+                                         'uband': ('band_number', self._bands_dataset['uband'].values),
+                                         'center': ('band_number', self._bands_dataset['center'].values)},
+                              coords={'band_center': self._bands_dataset['center'].values,
+                                      'F10.7': f107,
+                                      'F10.7AVG': f107avg,
+                                      'band_number': np.arange(20)})
+
+    def get_spectral_lines(self, *, f107, f107avg):
         '''
         Model calculation method. Returns the values of radiation fluxes in all 17 lines
-        of the spectrum of the interval 10-105 nm
-        :param f107: single value of the daily index F10.7 or an array of such values
-        :param f107avg: a single value of the F10.7 index averaged over 81 days or an array of such values
-        :return: xarray Dataset [euv_flux_spectra, line_lambda]
+        of the spectrum of the interval 10-105 nm.
+        :param f107: single value of the daily index F10.7 or an array of such values.
+        :param f107avg: a single value of the F10.7 index averaged over 81 days or an array of such values.
+        :return: xarray Dataset [euv_flux_spectra, line_lambda].
         '''
 
-        x = self._get_p(f107, f107avg)
-        res = np.dot(self._lines_coeffs, x.T)
-        return xr.Dataset(data_vars={'euv_flux_spectra': (('lambda', ('F10.7', 'F10.7_avg')), res),
-                                     'line_lambda': ('line_number', self._lines_dataset['lambda'].values)},
-                          coords={'lambda': self._lines_dataset['lambda'].values,
-                                  'line_number': np.arange(17),
-                                  'F10.7': f107,
-                                  'F10.7_avg': f107avg,})
+        if self._check_types(f107, f107avg):
+            f107 = np.array(f107)
+            f107avg = np.array(f107avg)
+            p = self._get_p(f107, f107avg)
+            spectra = np.dot(self._lines_coeffs, p.T)
 
-    def get_spectra(self, f107, f107avg):
+            res = np.zeros((f107.size, f107avg.size, spectra.shape[0]))
+            for i in range(f107.size):
+                res[i, i, :] = spectra[:, i]
+
+            return xr.Dataset(data_vars={'euv_flux_spectra': (('F10.7', 'F10.7AVG', 'lambda'), res),
+                                         'line_lambda': ('line_number', self._lines_dataset['lambda'].values)},
+                              coords={'lambda': self._lines_dataset['lambda'].values,
+                                      'line_number': np.arange(17),
+                                      'F10.7': f107,
+                                      'F10.7_avg': f107avg})
+
+    def get_spectra(self, *, f107, f107avg):
         '''
-        Model calculation method. Combines the get_spectra_bands() and get_spectral_lines() methods
-        :param f107: single value of the daily index F10.7 or an array of such values
-        :param f107avg: a single value of the F10.7 index averaged over 81 days or an array of such values
-        :return: xarray Dataset [euv_flux_spectra, lband, uband, center], xarray Dataset [euv_flux_spectra, line_lambda]
+        Model calculation method. Combines the get_spectra_bands() and get_spectral_lines() methods.
+        :param f107: single value of the daily index F10.7 or an array of such values.
+        :param f107avg: a single value of the F10.7 index averaged over 81 days or an array of such values.
+        :return: xarray Dataset [euv_flux_spectra, lband, uband, center], xarray Dataset [euv_flux_spectra, line_lambda].
         '''
-        return self.get_spectral_bands(f107, f107avg), self.get_spectral_lines(f107, f107avg)
+
+        return self.get_spectral_bands(f107=f107, f107avg=f107avg), self.get_spectral_lines(f107=f107, f107avg=f107avg)
