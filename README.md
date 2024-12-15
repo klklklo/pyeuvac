@@ -47,18 +47,17 @@ Input parameters:
 - f107avg - 81-day average F10.7 value (in s.f.u.).
 
 ```
-<xarray.Dataset> Size: 896B
+<xarray.Dataset> Size: 736B
 Dimensions:           (F10.7: 1, F10.7AVG: 1, band_center: 20, band_number: 20)
 Coordinates:
-  * band_center       (band_center) float64 160B 7.5 12.5 17.5 ... 97.5 102.5
   * F10.7             (F10.7) float64 8B <input F10.7 values>
-  * F10.7AVG          (F10.7AVG) float64 8B <input F10.7 values>
+  * F10.7AVG          (F10.7AVG) float64 8B <input F10.7A values>
+  * band_center       (band_center) float64 160B 7.5 12.5 17.5 ... 97.5 102.5
   * band_number       (band_number) int32 80B 0 1 2 3 4 5 ... 14 15 16 17 18 19
 Data variables:
     euv_flux_spectra  (F10.7, F10.7AVG, band_center) float64 160B <output spectrum>
     lband             (band_number) float64 160B 5.0 10.0 15.0 ... 95.0 100.0
     uband             (band_number) float64 160B 10.0 15.0 20.0 ... 100.0 105.0
-    center            (band_number) float64 160B 7.5 12.5 17.5 ... 97.5 102.5
 ```
 The resulting spectrum is contained in a three-dimensional array with dimensions (F<sub>10.7</sub>, F<sub>10.7A</sub>, euv_spectrum)
 
@@ -81,9 +80,9 @@ array([[[ 2.642448  ,  0.83475   , 12.504     , 10.3367336 ,
           0.34776092,  0.22137   ,  1.19157903,  2.5642565 ,
           5.945697  ,  4.793988  ,  2.2567559 ,  3.762175  ]]])
 Coordinates:
-  * band_center  (band_center) float64 160B 7.5 12.5 17.5 ... 92.5 97.5 102.5
   * F10.7        (F10.7) float64 8B 200.0
   * F10.7AVG     (F10.7AVG) float64 8B 200.0
+  * band_center  (band_center) float64 160B 7.5 12.5 17.5 ... 92.5 97.5 102.5
 ```
 
 If you need to calculate the spectrum for several F<sub>10.7</sub> and F<sub>10.7A</sub> values, pass them using a list.
@@ -101,9 +100,9 @@ array([ 2.642448  ,  0.83475   , 12.504     , 10.3367336 ,  7.01157116,
         0.51372157,  0.826272  ,  0.34776092,  0.22137   ,  1.19157903,
         2.5642565 ,  5.945697  ,  4.793988  ,  2.2567559 ,  3.762175  ])
 Coordinates:
-  * band_center  (band_center) float64 160B 7.5 12.5 17.5 ... 92.5 97.5 102.5
     F10.7        float64 8B 200.0
     F10.7AVG     float64 8B 200.0
+  * band_center  (band_center) float64 160B 7.5 12.5 17.5 ... 92.5 97.5 102.5
 ```
 
 2. get_spectral_lines()
@@ -119,17 +118,18 @@ In this case, the lengths of these lists should be the same.
 
 Output parameters:
 - xarray dataset
-```
-<xarray.Dataset> Size: 2kB
-Dimensions:           (F10.7: 1, F10.7AVG: 1, lambda: 17, line_number: 17)
+``` 
+<xarray.Dataset> Size: 492B
+Dimensions:           (F10.7: 1, F10.7AVG: 1, line_wavelength: 17,
+                       line_number: 17)
 Coordinates:
-  * lambda            (lambda) float64 136B 25.63 28.41 30.33 ... 102.6 103.2
+  * F10.7             (F10.7) float64 8B <input F10.7 values>
+  * F10.7AVG          (F10.7AVG) float64 8B <input F10.7A values>
+  * line_wavelength   (line_wavelength) float64 136B 25.63 28.41 ... 102.6 103.2
   * line_number       (line_number) int32 68B 0 1 2 3 4 5 ... 11 12 13 14 15 16
-  * F10.7             (F10.7) float64 24B <input F10.7 values>
-  * F10.7AVG          (F10.7AVG) float64 24B <input F10.7A values>
 Data variables:
-    euv_flux_spectra  (F10.7, F10.7AVG, lambda) float64 1kB <output spectrum>
-    line_lambda       (line_number) float64 136B 25.63 28.41 ... 102.6 103.2
+    euv_flux_spectra  (F10.7, F10.7AVG, line_wavelength) float64 136B <output spectrum>
+    wavelength        (line_number) float64 136B 25.63 28.41 ... 102.6 103.2
 ```
 
 Below is an example of spectrum calculation using get_spectra_lines() method
@@ -144,17 +144,16 @@ spectrum = example.get_spectral_lines(f107=200., f107avg=200.)
 print(spectrum['euv_flux_spectra'])
 
 
-<xarray.DataArray 'euv_flux_spectra' (F10.7: 1, F10.7AVG: 1, lambda: 17)> Size: 136B
+<xarray.DataArray 'euv_flux_spectra' (F10.7: 1, F10.7AVG: 1, line_wavelength: 17)> Size: 136B
 array([[[0.61318   , 3.679536  , 3.2       , 9.6599724 , 1.1641526 ,
          0.55071116, 1.00224288, 2.05612492, 1.55873   , 2.22441   ,
          0.49140144, 0.24854   , 0.6596096 , 0.977886  , 6.4812176 ,
          5.676986  , 3.4313916 ]]])
 Coordinates:
-  * lambda    (lambda) float64 136B 25.63 28.41 30.33 30.38 ... 97.7 102.6 103.2
-  * F10.7     (F10.7) float64 8B 200.0
-  * F10.7AVG  (F10.7AVG) float64 8B 200.0
+  * F10.7            (F10.7) float64 8B 200.0
+  * F10.7AVG         (F10.7AVG) float64 8B 200.0
+  * line_wavelength  (line_wavelength) float64 136B 25.63 28.41 ... 102.6 103.2
 ```
-
 
 If you need to calculate the spectrum for several P values, pass them using a list:
 ```
@@ -164,21 +163,18 @@ spectrum = example.get_spectral_lines(f107=[200., 210., 220.], f107avg=[200., 21
 print(spectrum['euv_flux_spectra'][0,0,:])
 
 
-<xarray.DataArray 'euv_flux_spectra' (lambda: 17)> Size: 136B
+<xarray.DataArray 'euv_flux_spectra' (line_wavelength: 17)> Size: 136B
 array([0.61318   , 3.679536  , 3.2       , 9.6599724 , 1.1641526 ,
        0.55071116, 1.00224288, 2.05612492, 1.55873   , 2.22441   ,
        0.49140144, 0.24854   , 0.6596096 , 0.977886  , 6.4812176 ,
        5.676986  , 3.4313916 ])
 Coordinates:
-  * lambda    (lambda) float64 136B 25.63 28.41 30.33 30.38 ... 97.7 102.6 103.2
-    F10.7     float64 8B 200.0
-    F10.7AVG  float64 8B 200.0
+    F10.7            float64 8B 200.0
+    F10.7AVG         float64 8B 200.0
+  * line_wavelength  (line_wavelength) float64 136B 25.63 28.41 ... 102.6 103.2
 ```
 
 3. get_spectra()
 
 This method combines the get_spectral_bands() and get_spectral_lines() methods. The method returns a tuple of 
 xarray Dataset (lines, bands), the first element is the flux in intervals, the second is the flux in individual lines.
-
-
-
