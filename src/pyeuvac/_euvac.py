@@ -8,32 +8,36 @@ class Euvac:
     EUVAC model class.
     '''
     def __init__(self):
-        # The equation of the model Fi = F74113 * (1 + Ai * (P - 80)) <=> Fi = F74113 + F74113 * Ai * (P - 80)
-        # In the form of a matrix product: F = (F74113 F74113*Ai) x (1 X)^T, where X = (P - 80)
-        # Therefore _bands_coeffs and _lines_coeffs are represented by matrices (F74113 F74113*Ai)
 
         self._bands_dataset, self._lines_dataset = _m.get_euvac()
-        self._bands_coeffs = np.vstack((np.array(self._bands_dataset['F74113'], dtype=np.float64),
-                                        np.array(self._bands_dataset['F74113']) *
-                                        np.array(self._bands_dataset['Ai'], dtype=np.float64))).transpose()
 
-        self._lines_coeffs = np.vstack((np.array(self._lines_dataset['F74113'], dtype=np.float64),
-                                        np.array(self._lines_dataset['F74113']) *
-                                        np.array(self._lines_dataset['Ai'], dtype=np.float64))).transpose()
+        self._bands_f74113 = np.array(self._bands_dataset['F74113'], dtype=np.float64).reshape(20,1)
+        self._bands_ai = np.array(self._bands_dataset['Ai'], dtype=np.float64).reshape(20,1)
 
-    def _get_p(self, f107, f107avg):
+        self._lines_f74113 = np.array(self._lines_dataset['F74113'], dtype=np.float64).reshape(17,1)
+        self._lines_ai = np.array(self._lines_dataset['Ai'], dtype=np.float64).reshape(17,1)
+
+    def _get_p(self, i, f107, f107avg):
         '''
-        Method for preparing data. It creates a two-dimensional array, the first column of which is filled with ones,
-        the second with the values of P = (F10.7 + F10.7avg) / 2.
+        Method for getting the P parameter. For each pair of values f107 and f107a, the value
+        P = (f107 + f107 avg) / 2. - 80. is calculated, and then a matrix is constructed,
+        each column of which is the value P.
+        :param i: number of rows.
         :param f107: single value of the daily index F10.7 or an array of such values.
         :param f107avg: a single value of the F10.7 index averaged over 81 days or an array of such values.
-        :return: numpy-array for model calculation.
+        :return: numpy array.
         '''
 
         if f107.size != f107avg.size:
             raise Exception(f'The number of F10.7 and F10.7_avg values does not match. f107 contained {f107.size} '
                             f'elements, f107avg contained {f107avg.size} elements.')
-        return np.vstack([[1., x] for x in (f107 + f107avg) / 2. - 80.])
+
+        p = (f107 + f107avg) / 2. - 80.
+        p_0 = p[:]
+        for j in range(i-1):
+            p_0 = np.vstack((p_0, p))
+
+        return p_0
 
     def _check_types(self, *proxies):
         if not all([isinstance(x, (float, int, list, np.ndarray)) for x in proxies]):
@@ -50,6 +54,8 @@ class Euvac:
         :return: xarray Dataset [euv_flux_spectra, lband, uband].
         '''
 
+        bands = 20
+
         if self._check_types(f107, f107avg):
 
             f107 = np.array([f107], dtype=np.float64) if isinstance(f107, (type(None), int, float)) \
@@ -57,8 +63,12 @@ class Euvac:
             f107avg = np.array([f107avg], dtype=np.float64) if isinstance(f107avg, (type(None), int, float)) \
                 else np.array(f107avg, dtype=np.float64)
 
-            p = self._get_p(f107, f107avg)
-            spectra = np.dot(self._bands_coeffs, p.T)
+            p = self._get_p(bands,f107, f107avg)
+            pai = self._bands_ai * p + 1.0
+
+            pai[pai < 0.8] = 0.8
+
+            spectra = self._bands_f74113 * pai
 
             res = np.zeros((spectra.shape[1], spectra.shape[1], spectra.shape[0]))
             for i in range(spectra.shape[1]):
@@ -70,7 +80,7 @@ class Euvac:
                               coords={'F10.7': f107,
                                       'F10.7AVG':  f107avg,
                                       'band_center': self._bands_dataset['center'].values,
-                                      'band_number': np.arange(20)})
+                                      'band_number': np.arange(bands)})
 
     def get_spectral_lines(self, *, f107, f107avg):
         '''
@@ -81,6 +91,8 @@ class Euvac:
         :return: xarray Dataset [euv_flux_spectra, wavelength].
         '''
 
+        lines = 17
+
         if self._check_types(f107, f107avg):
 
             f107 = np.array([f107], dtype=np.float64) if isinstance(f107, (type(None), int, float)) \
@@ -88,8 +100,13 @@ class Euvac:
             f107avg = np.array([f107avg], dtype=np.float64) if isinstance(f107avg, (type(None), int, float)) \
                 else np.array(f107avg, dtype=np.float64)
 
-            p = self._get_p(f107, f107avg)
-            spectra = np.dot(self._lines_coeffs, p.T)
+            p = self._get_p(lines, f107, f107avg)
+
+            pai = self._lines_ai * p + 1.0
+
+            pai[pai < 0.8] = 0.8
+
+            spectra = self._lines_f74113 * pai
 
             res = np.zeros((spectra.shape[1], spectra.shape[1], spectra.shape[0]))
             for i in range(spectra.shape[1]):
@@ -100,7 +117,7 @@ class Euvac:
                               coords={'F10.7': f107,
                                       'F10.7AVG': f107avg,
                                       'line_wavelength': self._lines_dataset['lambda'].values,
-                                      'line_number': np.arange(17)})
+                                      'line_number': np.arange(lines)})
 
     def get_spectra(self, *, f107, f107avg):
         '''
