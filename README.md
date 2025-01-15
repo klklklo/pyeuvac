@@ -1,6 +1,6 @@
 # pyeuvac
 <!--Basic information-->
-pyeuvac is a Python3 implementation of the extra ultraviolet (EUV) flux model described by P. G. Richards, 
+pyeuvac is a Python3 implementation of the extra ultraviolet (EUV) flux model EUVAC described by P. G. Richards, 
 J. A. Fennelly, D. G. Torr. This EUV model provides fluxes in the range 5-105 nm, divided into 20 intervals 
 of 5 nm width and into 17 separate lines.
 
@@ -43,8 +43,8 @@ lists with an equal number of elements.
 Method for calculating spectrum in 5 nm wide intervals from 5-105 nm range. Method returns xarray Dataset class object.
 
 Input parameters:
-- f107 - single value of the daily index F10.7 (in s.f.u.);
-- f107avg - 81-day average F10.7 value (in s.f.u.).
+- f107 - single value of the daily index F<sub>10.7</sub> (in s.f.u.);
+- f107avg - 81-day average F<sub>10.7</sub> value (in s.f.u.).
 
 ```
 <xarray.Dataset> Size: 736B
@@ -63,7 +63,7 @@ The resulting spectrum is contained in a three-dimensional array with dimensions
 
 Below is an example of calculating the spectrum with input parameters F<sub>10.7</sub> = F<sub>10.7A</sub> = 200 s.f.u.
 ```
-# importing a package with the alias p
+# importing a package with the alias pe
 import pyeuvac as pe
 # creating an instance of the Euvac class
 example = pe.Euvac()
@@ -134,7 +134,7 @@ Data variables:
 
 Below is an example of spectrum calculation using get_spectra_lines() method
 ```
-# importing a package with the alias p
+# importing a package with the alias pe
 import pyeuvac as pe
 # creating an instance of the Euvac class
 example = pe.Euvac()

@@ -45,12 +45,13 @@ class Euvac:
                             f'f107avg was {type(proxies[1])}')
         return True
 
-    def get_spectral_bands(self, *, f107, f107avg):
+    def get_spectral_bands(self, *, f107, f107avg, correction=False):
         '''
         Model calculation method. Returns the values of radiation fluxes in all 20 intervals
         of the spectrum of the interval 10-105 nm.
         :param f107: single value of the daily index F10.7 or an array of such values.
         :param f107avg: a single value of the F10.7 index averaged over 81 days or an array of such values.
+        :param correction: parameter for applying flux factor correction
         :return: xarray Dataset [euv_flux_spectra, lband, uband].
         '''
 
@@ -66,7 +67,8 @@ class Euvac:
             p = self._get_p(bands,f107, f107avg)
             pai = self._bands_ai * p + 1.0
 
-            pai[pai < 0.8] = 0.8
+            if correction:
+                pai[pai < 0.8] = 0.8
 
             spectra = self._bands_f74113 * pai
 
@@ -82,12 +84,13 @@ class Euvac:
                                       'band_center': self._bands_dataset['center'].values,
                                       'band_number': np.arange(bands)})
 
-    def get_spectral_lines(self, *, f107, f107avg):
+    def get_spectral_lines(self, *, f107, f107avg, correction=False):
         '''
         Model calculation method. Returns the values of radiation fluxes in all 17 lines
         of the spectrum of the interval 10-105 nm.
         :param f107: single value of the daily index F10.7 or an array of such values.
         :param f107avg: a single value of the F10.7 index averaged over 81 days or an array of such values.
+        :param correction: parameter for applying flux factor correction
         :return: xarray Dataset [euv_flux_spectra, wavelength].
         '''
 
@@ -101,10 +104,10 @@ class Euvac:
                 else np.array(f107avg, dtype=np.float64)
 
             p = self._get_p(lines, f107, f107avg)
-
             pai = self._lines_ai * p + 1.0
 
-            pai[pai < 0.8] = 0.8
+            if correction:
+                pai[pai < 0.8] = 0.8
 
             spectra = self._lines_f74113 * pai
 
@@ -119,12 +122,14 @@ class Euvac:
                                       'line_wavelength': self._lines_dataset['lambda'].values,
                                       'line_number': np.arange(lines)})
 
-    def get_spectra(self, *, f107, f107avg):
+    def get_spectra(self, *, f107, f107avg, correction=False):
         '''
         Model calculation method. Combines the get_spectra_bands() and get_spectral_lines() methods.
         :param f107: single value of the daily index F10.7 or an array of such values.
         :param f107avg: a single value of the F10.7 index averaged over 81 days or an array of such values.
+        :param correction: parameter for applying flux factor correction
         :return: xarray Dataset [euv_flux_spectra, lband, uband], xarray Dataset [euv_flux_spectra, wavelength].
         '''
 
-        return self.get_spectral_bands(f107=f107, f107avg=f107avg), self.get_spectral_lines(f107=f107, f107avg=f107avg)
+        return (self.get_spectral_bands(f107=f107, f107avg=f107avg, correction=correction),
+                self.get_spectral_lines(f107=f107, f107avg=f107avg, correction=correction))
