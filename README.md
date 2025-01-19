@@ -35,6 +35,7 @@ All methods of the class have two input parameters:
 
 Parameters can only be of types float, int, list and numpy.array. If there are several parameters, they are passed as 
 lists with an equal number of elements.
+Calculated EUV spectrum in units of cm<sup>-2</sup> s<sup>-1</sup>.
 
 ## Usage example
 
