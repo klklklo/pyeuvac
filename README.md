@@ -28,6 +28,8 @@ The pyeuvac package contains one class Euvac which has 3 methods:
 - get_spectral_bands() for calculating the spectrum over intervals;
 - get_spectral_lines() for calculating the spectrum along individual lines;
 - get_spectra() for calculating the spectrum in a wavelength interval and in an individual wavelength.
+- predict() for calculating the spectrum for a mixed set of intervals and lines 
+(this set is given in \[Richards et al\] in Table 1).
 
 All methods of the class have two input parameters:
 - F<sub>10.7</sub> - daily value of the F<sub>10.7</sub> solar activity index (in s.f.u.);
@@ -179,3 +181,35 @@ Coordinates:
 
 This method combines the get_spectral_bands() and get_spectral_lines() methods. The method returns a tuple of 
 xarray Dataset (lines, bands), the first element is the flux in intervals, the second is the flux in individual lines.
+
+4. predict()
+
+This method calculates EUV spectrum from mixed dataset (containing intervals and lines together).
+
+```
+# importing a package with the alias pe
+import pyeuvac as pe
+# creating an instance of the Euvac class
+example = pe.Euvac()
+# calculate the spectrum values at F10.7 = 200 and F10.7A = 200 (P = 200 as an example of the Richards et al.) using predict()
+spectrum = example.predict(f107=200., f107avg=200.)
+# output the resulting EUV-spectra
+print(spectrum['euv_flux_spectra'])
+
+
+<xarray.DataArray 'euv_flux_spectra' (F10.7: 1, F10.7AVG: 1, band_center: 37)> Size: 296B
+array([[[2.64244800e+09, 8.34750000e+08, 1.25040000e+10, 1.03354000e+10,
+         6.13180000e+08, 3.67953600e+09, 7.01157116e+09, 3.20000000e+09,
+         9.65997240e+09, 3.56471000e+09, 1.16415260e+09, 1.69090256e+09,
+         7.23485468e+08, 5.50711160e+08, 9.76695000e+08, 9.27050192e+08,
+         1.00224288e+09, 2.05612492e+09, 5.13721572e+08, 1.55873000e+09,
+         2.22441000e+09, 8.26272000e+08, 3.47760920e+08, 4.91401440e+08,
+         2.21370000e+08, 2.48540000e+08, 6.59609600e+08, 9.77886000e+08,
+         1.19157903e+09, 2.56425650e+09, 5.94569700e+09, 4.79398800e+09,
+         6.48121760e+09, 2.25675590e+09, 5.67698600e+09, 3.43139160e+09,
+         3.76217500e+09]]])
+Coordinates:
+  * F10.7        (F10.7) float64 8B 200.0
+  * F10.7AVG     (F10.7AVG) float64 8B 200.0
+  * band_center  (band_center) float64 296B 7.5 12.5 17.5 ... 102.6 103.2 102.5
+```
