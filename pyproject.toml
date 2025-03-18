@@ -4,17 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyeuvac"
-version = "0.0.7b"
+version = "0.0.9b"
 authors = [
   { name="Anton Tatarnikov", email="tatarnikoffanton@yandex.ru" },
   { name="Oleg Zolotov", email="ovz.office@gmail.com" },
 ]
-description = "Python3 implementation of EUVAC - extreme ultraviolet (EUV) flux model for aeronomic calculations."
+description = ""
 
 readme = "README.md"
 license = {file = "LICENSE"}
 
-keywords = ["Solar radiation model", "EUV"]
+keywords = []
 
 requires-python = ">=3.7"
 classifiers = [
