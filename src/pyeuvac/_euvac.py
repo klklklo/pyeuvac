@@ -85,8 +85,8 @@ class Euvac:
             return xr.Dataset(data_vars={'euv_flux_spectra': (('F10.7', 'F10.7AVG', 'band_center'), res),
                                          'lband': ('band_number', self._bands_dataset['lband'].values),
                                          'uband': ('band_number', self._bands_dataset['uband'].values)},
-                              coords={'F10.7': f107,
-                                      'F10.7AVG':  f107avg,
+                              coords={'F107': f107,
+                                      'F107AVG':  f107avg,
                                       'band_center': self._bands_dataset['center'].values,
                                       'band_number': np.arange(bands)})
 
@@ -118,8 +118,8 @@ class Euvac:
 
             return xr.Dataset(data_vars={'euv_flux_spectra': (('F10.7', 'F10.7AVG', 'line_wavelength'), res),
                                          'wavelength': ('line_number', self._lines_dataset['lambda'].values)},
-                              coords={'F10.7': f107,
-                                      'F10.7AVG': f107avg,
+                              coords={'F107': f107,
+                                      'F107AVG': f107avg,
                                       'line_wavelength': self._lines_dataset['lambda'].values,
                                       'line_number': np.arange(lines)})
 
@@ -155,7 +155,7 @@ class Euvac:
             return xr.Dataset(data_vars={'euv_flux_spectra': (('F10.7', 'F10.7AVG', 'band_center'), res),
                                          'lband': ('band_number', self._full_dataset['lband'].values),
                                          'uband': ('band_number', self._full_dataset['uband'].values)},
-                              coords={'F10.7': f107,
-                                      'F10.7AVG': f107avg,
+                              coords={'F107': f107,
+                                      'F107AVG': f107avg,
                                       'band_center': self._full_dataset['center'].values,
                                       'band_number': np.arange(data)})
