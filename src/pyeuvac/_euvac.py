@@ -82,7 +82,7 @@ class Euvac:
             for i in range(spectra.shape[1]):
                 res[i, i, :] = spectra[:, i]
 
-            return xr.Dataset(data_vars={'euv_flux_spectra': (('F10.7', 'F10.7AVG', 'band_center'), res),
+            return xr.Dataset(data_vars={'euv_flux_spectra': (('F107', 'F107AVG', 'band_center'), res),
                                          'lband': ('band_number', self._bands_dataset['lband'].values),
                                          'uband': ('band_number', self._bands_dataset['uband'].values)},
                               coords={'F107': f107,
@@ -116,7 +116,7 @@ class Euvac:
             for i in range(spectra.shape[1]):
                 res[i, i, :] = spectra[:, i]
 
-            return xr.Dataset(data_vars={'euv_flux_spectra': (('F10.7', 'F10.7AVG', 'line_wavelength'), res),
+            return xr.Dataset(data_vars={'euv_flux_spectra': (('F107', 'F107AVG', 'line_wavelength'), res),
                                          'wavelength': ('line_number', self._lines_dataset['lambda'].values)},
                               coords={'F107': f107,
                                       'F107AVG': f107avg,
@@ -152,7 +152,7 @@ class Euvac:
             for i in range(spectra.shape[1]):
                 res[i, i, :] = spectra[:, i]
 
-            return xr.Dataset(data_vars={'euv_flux_spectra': (('F10.7', 'F10.7AVG', 'band_center'), res),
+            return xr.Dataset(data_vars={'euv_flux_spectra': (('F107', 'F107AVG', 'band_center'), res),
                                          'lband': ('band_number', self._full_dataset['lband'].values),
                                          'uband': ('band_number', self._full_dataset['uband'].values)},
                               coords={'F107': f107,
