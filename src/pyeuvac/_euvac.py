@@ -57,17 +57,7 @@ class Euvac:
         return True
 
     def get_spectral_bands(self, *, f107, f107avg, correction=False):
-        '''
-        Model calculation method. Returns the values of radiation fluxes in all 20 intervals
-        of the spectrum of the interval 10-105 nm.
-        :param f107: single value of the daily index F10.7 (in s.f.u.) or an array of such values.
-        :param f107avg: a single value of the index F10.7 (in s.f.u.) averaged over 81 days or an array of such values.
-        :param correction: parameter for applying flux factor correction. False by default.
-        :return: xarray Dataset [euv_flux_spectra, lband, uband].
-        '''
-
         bands = 20
-
         if self._check_types(f107, f107avg):
 
             f107 = np.array([f107], dtype=np.float64) if isinstance(f107, (type(None), int, float)) \
@@ -88,22 +78,18 @@ class Euvac:
                               coords={'F107': f107,
                                       'F107AVG':  f107avg,
                                       'band_center': self._bands_dataset['center'].values,
-                                      'band_number': np.arange(bands)})
+                                      'band_number': np.arange(bands)},
+                              attrs={'F10.7 units': '10^-22 · W · m^-2 · Hz^-1',
+                                     'F10.7 81-day average units': '10^-22 · W · m^-2 · Hz^-1',
+                                     'spectra units': 'photons · m^-2 · s^-1',
+                                     'wavelength units': 'nm',
+                                     'euv_flux_spectra': 'modeled EUV solar irradiance',
+                                     'lband': 'lower boundary of wavelength interval',
+                                     'uband': 'upper boundary of wavelength interval'})
 
     def get_spectral_lines(self, *, f107, f107avg, correction=False):
-        '''
-        Model calculation method. Returns the values of radiation fluxes in all 17 lines
-        of the spectrum of the interval 10-105 nm.
-        :param f107: single value of the daily index F10.7 (in s.f.u.) or an array of such values.
-        :param f107avg: a single value of the index F10.7 (in s.f.u.) averaged over 81 days or an array of such values.
-        :param correction: parameter for applying flux factor correction. False by default.
-        :return: xarray Dataset [euv_flux_spectra, wavelength].
-        '''
-
         lines = 17
-
         if self._check_types(f107, f107avg):
-
             f107 = np.array([f107], dtype=np.float64) if isinstance(f107, (type(None), int, float)) \
                 else np.array(f107, dtype=np.float64)
             f107avg = np.array([f107avg], dtype=np.float64) if isinstance(f107avg, (type(None), int, float)) \
@@ -121,23 +107,20 @@ class Euvac:
                               coords={'F107': f107,
                                       'F107AVG': f107avg,
                                       'line_wavelength': self._lines_dataset['lambda'].values,
-                                      'line_number': np.arange(lines)})
+                                      'line_number': np.arange(lines)},
+                              attrs={'F10.7 units': '10^-22 · W · m^-2 · Hz^-1',
+                                     'F10.7 81-day average units': '10^-22 · W · m^-2 · Hz^-1',
+                                     'spectra units': 'photons · m^-2 · s^-1',
+                                     'wavelength units': 'nm',
+                                     'euv_flux_spectra': 'modeled EUV solar irradiance',
+                                     'wavelength': 'the wavelength of a discrete line'})
 
     def get_spectra(self, *, f107, f107avg, correction=False):
-        '''
-        Model calculation method. Combines the get_spectra_bands() and get_spectral_lines() methods.
-        :param f107: single value of the daily index F10.7 (in s.f.u.) or an array of such values.
-        :param f107avg: a single value of the index F10.7 (in s.f.u.) averaged over 81 days or an array of such values.
-        :param correction: parameter for applying flux factor correction. False by default.
-        :return: xarray Dataset [euv_flux_spectra, lband, uband], xarray Dataset [euv_flux_spectra, wavelength].
-        '''
-
         return (self.get_spectral_bands(f107=f107, f107avg=f107avg, correction=correction),
                 self.get_spectral_lines(f107=f107, f107avg=f107avg, correction=correction))
 
     def predict(self, f107, f107avg, correction=False):
         data = 37
-
         if self._check_types(f107, f107avg):
 
             f107 = np.array([f107], dtype=np.float64) if isinstance(f107, (type(None), int, float)) \
@@ -158,4 +141,11 @@ class Euvac:
                               coords={'F107': f107,
                                       'F107AVG': f107avg,
                                       'band_center': self._full_dataset['center'].values,
-                                      'band_number': np.arange(data)})
+                                      'band_number': np.arange(data)},
+                              attrs={'F10.7 units': '10^-22 · W · m^-2 · Hz^-1',
+                                     'F10.7 81-day average units': '10^-22 · W · m^-2 · Hz^-1',
+                                     'spectra units': 'photons · m^-2 · s^-1',
+                                     'wavelength units': 'nm',
+                                     'euv_flux_spectra': 'modeled EUV solar irradiance',
+                                     'lband': 'lower boundary of wavelength interval',
+                                     'uband': 'upper boundary of wavelength interval'})
