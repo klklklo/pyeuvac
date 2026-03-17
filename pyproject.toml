@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyeuvac"
-version = "0.0.12b"
+version = "0.1.0b"
 authors = [
   { name="Anton Tatarnikov", email="tatarnikoffanton@yandex.ru" },
   { name="Oleg Zolotov", email="ovz.office@gmail.com" },
@@ -30,7 +30,8 @@ dependencies=[
     "netcdf4",
     "numpy",
     "pandas",
-    "xarray"
+    "xarray",
+    "sparse"
 ]
 
 [project.urls]
