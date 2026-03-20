@@ -67,7 +67,9 @@ class Euvac:
             s = sparse.COO(coords, spectra, shape=(cols, cols, bands))
 
 
-            return xr.Dataset(data_vars={'euv_flux_spectra': (('F107', 'F107AVG', 'band_center'), s)},
+            return xr.Dataset(data_vars={'euv_flux_spectra': (('F107', 'F107AVG', 'band_center'), s),
+                                         'lband': ('band_number', self._bands_dataset['lband'].data),
+                                         'uband': ('band_number', self._bands_dataset['uband'].data)},
                               coords={'F107': f107,
                                       'F107AVG':  f107avg,
                                       'band_center': self._bands_dataset['center'].values,
